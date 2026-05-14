@@ -8,6 +8,7 @@ export default function SignUpPage() {
     const { login, isLoggedIn, loading } = useAuth();
     const router = useRouter();
     const [error, setError] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (!loading && isLoggedIn) {
@@ -17,6 +18,7 @@ export default function SignUpPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsSubmitting(true);
         setError("");
 
         const formData = new FormData(e.currentTarget);
@@ -24,24 +26,38 @@ export default function SignUpPage() {
         const password = formData.get("password") as string;
 
         try {
-            const response = await fetch("/api/users/auth/sign_up", {
+            const signUpResponse = await fetch("/api/users/auth/sign_up", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
             });
 
-            const data = await response.json();
+            const signUpData = await signUpResponse.json();
 
-            if (response.ok) {
-                login(username);
-                router.push("/protected");
-            } else {
-                setError(data.error || "Sign up failed");
+            if (!signUpResponse.ok) {
+                setError(signUpData.error || "Sign up failed");
+                return;
             }
+
+            const signInResponse = await fetch("/api/users/auth/sign_in", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const signInData = await signInResponse.json();
+
+            if (!signInResponse.ok) {
+                setError(signInData.error || "Sign up succeeded, but login failed");
+                return;
+            }
+
+            login(username);
+            router.push("/protected");
         } catch (err) {
             setError("An unexpected error occurred");
         } finally {
-            // setLoading(false); // This line is removed as per the edit hint.
+            setIsSubmitting(false);
         }
     };
 
@@ -93,10 +109,10 @@ export default function SignUpPage() {
                     </div>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || isSubmitting}
                         className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {loading ? "Creating account..." : "Create account"}
+                        {isSubmitting ? "Creating account..." : "Create account"}
                     </button>
                 </form>
                 <p className="mt-5 text-center text-sm text-slate-500">

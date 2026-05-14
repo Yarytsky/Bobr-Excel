@@ -8,7 +8,7 @@ export default function LoginPage() {
     const { login, isLoggedIn, loading } = useAuth();
     const router = useRouter();
     const [error, setError] = useState("");
-    const [loadingState, setLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (!loading && isLoggedIn) {
@@ -18,7 +18,7 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setLoading(true);
+        setIsSubmitting(true);
         setError("");
 
         const formData = new FormData(e.currentTarget);
@@ -43,7 +43,7 @@ export default function LoginPage() {
         } catch (err) {
             setError("An unexpected error occurred");
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -95,10 +95,10 @@ export default function LoginPage() {
                     </div>
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || isSubmitting}
                         className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {loading ? "Signing in..." : "Sign in"}
+                        {isSubmitting ? "Signing in..." : "Sign in"}
                     </button>
                 </form>
                 <p className="mt-5 text-center text-sm text-slate-500">
