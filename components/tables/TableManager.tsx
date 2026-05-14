@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type TableRow = {
@@ -16,11 +16,6 @@ export default function TableManager() {
   const router = useRouter();
   const [error, setError] = useState<string>("");
   const [name, setName] = useState<string>("");
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const selected = useMemo(
-    () => tables.find((t) => t.id === selectedId) || null,
-    [tables, selectedId]
-  );
 
   const loadTables = async () => {
     setLoading(true);
@@ -76,7 +71,6 @@ export default function TableManager() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Failed to delete table");
       setTables((prev) => prev.filter((t) => t.id !== id));
-      if (selectedId === id) setSelectedId(null);
     } catch (e: any) {
       setError(e?.message || "Failed to delete table");
     } finally {
@@ -123,54 +117,34 @@ export default function TableManager() {
           {error}
         </div>
       )}
-      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[1.75rem] bg-white border border-slate-200 p-5 shadow-lg shadow-slate-200/50">
-          {loading ? (
-            <p className="text-slate-600">Loading your tables…</p>
-          ) : tables.length === 0 ? (
-            <p className="text-slate-600">No tables yet. Create your first one.</p>
-          ) : (
-            <ul className="space-y-3">
-              {tables.map((t) => (
-                <li
-                  key={t.id}
-                  className={`flex items-center justify-between rounded-2xl border px-4 py-3 transition ${
-                    selectedId === t.id
-                      ? "border-violet-400 bg-violet-50"
-                      : "border-slate-200 bg-white hover:border-slate-300"
-                  }`}
+      <div className="rounded-[1.75rem] bg-white border border-slate-200 p-5 shadow-lg shadow-slate-200/50">
+        {loading ? (
+          <p className="text-slate-600">Loading your tables…</p>
+        ) : tables.length === 0 ? (
+          <p className="text-slate-600">No tables yet. Create your first one.</p>
+        ) : (
+          <ul className="space-y-3">
+            {tables.map((t) => (
+              <li
+                key={t.id}
+                className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 transition hover:border-slate-300"
+              >
+                <button
+                  onClick={() => router.push(`/table/${t.id}`)}
+                  className="text-left flex-1 text-sm font-medium text-slate-900 hover:text-slate-700"
                 >
-                  <button
-                    onClick={() => router.push(`/table/${t.id}`)}
-                    className="text-left flex-1 text-sm font-medium text-slate-900 hover:text-slate-700"
-                  >
-                    {t.name}
-                  </button>
-                  <button
-                    onClick={() => deleteTable(t.id)}
-                    className="ml-4 rounded-full px-3 py-1 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        <div className="rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 shadow-lg shadow-slate-200/50 min-h-[240px]">
-          {!selected ? (
-            <div className="flex h-full items-center justify-center text-center text-slate-500">
-              Select a table to start working.
-            </div>
-          ) : (
-            <div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">{selected.name}</h3>
-              <p className="text-sm leading-6 text-slate-600">
-                Click a table name to edit it. You can delete tables anytime if you want to start fresh.
-              </p>
-            </div>
-          )}
-        </div>
+                  {t.name}
+                </button>
+                <button
+                  onClick={() => deleteTable(t.id)}
+                  className="ml-4 rounded-full px-3 py-1 text-sm font-semibold text-rose-600 transition hover:bg-rose-50"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
