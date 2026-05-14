@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 224 24% 98%;
+    --foreground: 220 13% 18%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 13% 18%;
+    --border: 214 32% 91%;
+    --muted: 216 18% 97%;
+    --muted-foreground: 215 20% 55%;
+    --ring: 210 36% 92%;
+    --radius: 1rem;
+  }
+  .dark {
+    --background: 220 15% 11%;
+    --foreground: 210 16% 92%;
+    --card: 220 15% 14%;
+    --card-foreground: 210 16% 92%;
+    --border: 224 18% 18%;
+    --muted: 220 13% 18%;
+    --muted-foreground: 215 20% 70%;
+    --ring: 210 36% 92%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    min-height: 100vh;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    background-image: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), transparent 22%),
+      radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.12), transparent 18%);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    -webkit-font-smoothing: antialiased;
+    font-smoothing: antialiased;
+  }
+  input,
+  textarea,
+  button {
+    @apply outline-none transition duration-200 ease-in-out;
+  }
+}
