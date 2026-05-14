@@ -36,8 +36,17 @@ export default function LoginPage() {
             const data = await response.json();
 
             if (response.ok) {
-                login(username);
-                await router.push("/protected");
+                const meResponse = await fetch("/api/users/auth/me", {
+                    cache: "no-store",
+                    credentials: "same-origin",
+                });
+                if (meResponse.ok) {
+                    const meData = await meResponse.json();
+                    login(meData.user?.username || username);
+                    await router.push("/protected");
+                } else {
+                    setError("Login succeeded but session check failed");
+                }
             } else {
                 setError(data.error || "Login failed");
             }

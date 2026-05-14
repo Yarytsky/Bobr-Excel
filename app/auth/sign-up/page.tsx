@@ -54,8 +54,17 @@ export default function SignUpPage() {
                 return;
             }
 
-            login(username);
-            await router.push("/protected");
+            const meResponse = await fetch("/api/users/auth/me", {
+                cache: "no-store",
+                credentials: "same-origin",
+            });
+            if (meResponse.ok) {
+                const meData = await meResponse.json();
+                login(meData.user?.username || username);
+                await router.push("/protected");
+            } else {
+                setError("Sign up succeeded but session check failed");
+            }
         } catch (err) {
             setError("An unexpected error occurred");
         } finally {
