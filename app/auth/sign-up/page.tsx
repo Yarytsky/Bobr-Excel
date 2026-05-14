@@ -55,7 +55,7 @@ export default function SignUpPage() {
             }
 
             login(username);
-            router.push("/protected");
+            await router.push("/protected");
         } catch (err) {
             setError("An unexpected error occurred");
         } finally {

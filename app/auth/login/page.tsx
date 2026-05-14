@@ -37,7 +37,7 @@ export default function LoginPage() {
 
             if (response.ok) {
                 login(username);
-                router.push("/protected");
+                await router.push("/protected");
             } else {
                 setError(data.error || "Login failed");
             }

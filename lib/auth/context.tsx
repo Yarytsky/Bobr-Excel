@@ -33,16 +33,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             try {
                 let res = await fetch("/api/users/auth/me", {
                     cache: "no-store",
+                    credentials: "same-origin",
                 });
                 if (res.status === 401) {
                     // Access token might be expired – attempt silent refresh
                     const refreshRes = await fetch("/api/users/auth/refresh", {
                         method: "POST",
+                        credentials: "same-origin",
                     });
                     if (refreshRes.ok) {
                         // Try /me again after successful refresh
                         res = await fetch("/api/users/auth/me", {
                             cache: "no-store",
+                            credentials: "same-origin",
                         });
                     } else {
                         // Refresh failed, user is not authenticated
@@ -79,7 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = async () => {
         try {
-            await fetch("/api/users/auth/logout", { method: "POST" });
+            await fetch("/api/users/auth/logout", {
+                method: "POST",
+                credentials: "same-origin",
+            });
         } catch {}
         setUser(null);
     };
