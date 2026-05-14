@@ -8,7 +8,7 @@ export default function LoginPage() {
     const { login, isLoggedIn, loading } = useAuth();
     const router = useRouter();
     const [error, setError] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loadingState, setLoading] = useState(false);
 
     useEffect(() => {
         if (!loading && isLoggedIn) {
@@ -18,7 +18,7 @@ export default function LoginPage() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsSubmitting(true);
+        setLoading(true);
         setError("");
 
         const formData = new FormData(e.currentTarget);
@@ -26,34 +26,24 @@ export default function LoginPage() {
         const password = formData.get("password") as string;
 
         try {
-            const [response, meResponse] = await Promise.all([
-                fetch("/api/users/auth/sign_in", {
-                    method: "POST",
-                    credentials: "same-origin",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password }),
-                }),
-                fetch("/api/users/auth/me", {
-                    cache: "no-store",
-                    credentials: "same-origin",
-                }),
-            ]);
+            const response = await fetch("/api/users/auth/sign_in", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
 
             const data = await response.json();
-            const meData = meResponse.ok ? await meResponse.json() : null;
 
-            if (response.ok && meResponse.ok) {
-                login(meData.user?.username || username);
-                await router.push("/protected");
-            } else if (response.ok) {
-                setError("Login succeeded but session check failed");
+            if (response.ok) {
+                login(username);
+                router.push("/protected");
             } else {
                 setError(data.error || "Login failed");
             }
         } catch (err) {
             setError("An unexpected error occurred");
         } finally {
-            setIsSubmitting(false);
+            setLoading(false);
         }
     };
 
@@ -105,10 +95,10 @@ export default function LoginPage() {
                     </div>
                     <button
                         type="submit"
-                        disabled={loading || isSubmitting}
+                        disabled={loading}
                         className="w-full rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        {isSubmitting ? "Signing in..." : "Sign in"}
+                        {loading ? "Signing in..." : "Sign in"}
                     </button>
                 </form>
                 <p className="mt-5 text-center text-sm text-slate-500">

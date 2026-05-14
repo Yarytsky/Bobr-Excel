@@ -26,46 +26,19 @@ export default function SignUpPage() {
         const password = formData.get("password") as string;
 
         try {
-            const signUpResponse = await fetch("/api/users/auth/sign_up", {
+            const response = await fetch("/api/users/auth/sign_up", {
                 method: "POST",
-                credentials: "same-origin",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
             });
 
-            const signUpData = await signUpResponse.json();
+            const data = await response.json();
 
-            if (!signUpResponse.ok) {
-                setError(signUpData.error || "Sign up failed");
-                return;
-            }
-
-            const [signInResponse, meResponse] = await Promise.all([
-                fetch("/api/users/auth/sign_in", {
-                    method: "POST",
-                    credentials: "same-origin",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username, password }),
-                }),
-                fetch("/api/users/auth/me", {
-                    cache: "no-store",
-                    credentials: "same-origin",
-                }),
-            ]);
-
-            const signInData = await signInResponse.json();
-            const meData = meResponse.ok ? await meResponse.json() : null;
-
-            if (!signInResponse.ok) {
-                setError(signInData.error || "Sign up succeeded, but login failed");
-                return;
-            }
-
-            if (meResponse.ok) {
-                login(meData.user?.username || username);
-                await router.push("/protected");
+            if (response.ok) {
+                login(username);
+                router.push("/protected");
             } else {
-                setError("Sign up succeeded but session check failed");
+                setError(data.error || "Sign up failed");
             }
         } catch (err) {
             setError("An unexpected error occurred");
