@@ -28,6 +28,7 @@ export default function SignUpPage() {
         try {
             const signUpResponse = await fetch("/api/users/auth/sign_up", {
                 method: "POST",
+                credentials: "same-origin",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
             });
@@ -41,6 +42,7 @@ export default function SignUpPage() {
 
             const signInResponse = await fetch("/api/users/auth/sign_in", {
                 method: "POST",
+                credentials: "same-origin",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
             });

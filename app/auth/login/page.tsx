@@ -28,6 +28,7 @@ export default function LoginPage() {
         try {
             const response = await fetch("/api/users/auth/sign_in", {
                 method: "POST",
+                credentials: "same-origin",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
             });
