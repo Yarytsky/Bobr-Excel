@@ -26,27 +26,27 @@ export default function LoginPage() {
         const password = formData.get("password") as string;
 
         try {
-            const response = await fetch("/api/users/auth/sign_in", {
-                method: "POST",
-                credentials: "same-origin",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                const meResponse = await fetch("/api/users/auth/me", {
+            const [response, meResponse] = await Promise.all([
+                fetch("/api/users/auth/sign_in", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                }),
+                fetch("/api/users/auth/me", {
                     cache: "no-store",
                     credentials: "same-origin",
-                });
-                if (meResponse.ok) {
-                    const meData = await meResponse.json();
-                    login(meData.user?.username || username);
-                    await router.push("/protected");
-                } else {
-                    setError("Login succeeded but session check failed");
-                }
+                }),
+            ]);
+
+            const data = await response.json();
+            const meData = meResponse.ok ? await meResponse.json() : null;
+
+            if (response.ok && meResponse.ok) {
+                login(meData.user?.username || username);
+                await router.push("/protected");
+            } else if (response.ok) {
+                setError("Login succeeded but session check failed");
             } else {
                 setError(data.error || "Login failed");
             }

@@ -40,26 +40,28 @@ export default function SignUpPage() {
                 return;
             }
 
-            const signInResponse = await fetch("/api/users/auth/sign_in", {
-                method: "POST",
-                credentials: "same-origin",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password }),
-            });
+            const [signInResponse, meResponse] = await Promise.all([
+                fetch("/api/users/auth/sign_in", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password }),
+                }),
+                fetch("/api/users/auth/me", {
+                    cache: "no-store",
+                    credentials: "same-origin",
+                }),
+            ]);
 
             const signInData = await signInResponse.json();
+            const meData = meResponse.ok ? await meResponse.json() : null;
 
             if (!signInResponse.ok) {
                 setError(signInData.error || "Sign up succeeded, but login failed");
                 return;
             }
 
-            const meResponse = await fetch("/api/users/auth/me", {
-                cache: "no-store",
-                credentials: "same-origin",
-            });
             if (meResponse.ok) {
-                const meData = await meResponse.json();
                 login(meData.user?.username || username);
                 await router.push("/protected");
             } else {
